@@ -30,6 +30,9 @@ class Criteria
     /** @var array<string, Order> */
     private array $orderings = [];
 
+    /** TODO@var array<string, EGroupAggregation>  */ 
+    private array $grouping = [];
+
     private int|null $firstResult = null;
     private int|null $maxResults  = null;
 
@@ -184,6 +187,17 @@ class Criteria
         return $this->orderings;
     }
 
+        /**
+     * Gets the current orderings of this Criteria.
+     *
+     *  @return array<string, EGroupAggregation>   
+     */
+    public function grouping(): array
+    {
+        return $this->grouping;
+    }
+
+    
     /**
      * Sets the ordering of the result of this Criteria.
      *
@@ -223,6 +237,25 @@ class Criteria
             $orderings,
         );
 
+        return $this;
+    }
+
+     /**
+     * Sets the grouping of the result of this Criteria.
+     *
+     * Keys are fields and values are the order, being a valid Gru enum case.
+     *
+     *
+     * TODO@param array<EGroupAggregation> $aggergations
+     *
+     * @return $this
+     */
+    public function groupBy(array $groupFields, array $aggergations =[]) : self
+    {
+        $this->grouping =  [
+            'groupFields' => $groupFields,
+            'aggergations' => $aggergations
+        ];
         return $this;
     }
 

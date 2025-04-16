@@ -23,6 +23,8 @@ use function str_ends_with;
 use function str_starts_with;
 use function strtoupper;
 
+use Doctrine\Common\Collections\GroupAggregation;
+
 /**
  * Walks an expression graph and turns it into a PHP closure.
  *
@@ -118,6 +120,30 @@ class ClosureExpressionVisitor extends ExpressionVisitor
 
             return ($aValue > $bValue ? 1 : -1) * $orientation;
         };
+    }
+
+    /**
+     * Group by fields and aggregate
+     * 
+     */
+    public static function groupByField(array $grouping, array $originalRows): array
+    {
+        list('groupFields' => $groupwdFields, 'aggergations' => $aggregations) = $grouping;
+        $groupedRows = [];
+        foreach ($originalRows as $originalRow) {
+            $item = [];
+            foreach ($groupwdFields as $group) {
+                $item[$group] = $originalRow[$group];
+            }
+            $groupedRows[] = $item;
+        }
+        $groupedRows =  array_unique($groupedRows, SORT_REGULAR);
+        arsort($groupedRows);
+        $groupedRows = array_reverse($groupedRows);
+
+        $groupedRows = GroupAggregation::aggregate($originalRows, $groupedRows, $groupwdFields, $aggregations);
+
+        return $groupedRows;
     }
 
     /**
