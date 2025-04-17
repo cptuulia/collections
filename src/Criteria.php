@@ -246,15 +246,18 @@ class Criteria
      * Keys are fields and values are the order, being a valid Gru enum case.
      *
      *
-     * TODO@param array<EGroupAggregation> $aggergations
+     * TODO@param array<EGroupAggregation> $aggregations
      *
      * @return $this
      */
-    public function groupBy(array $groupFields, array $aggergations =[]) : self
+    public function groupBy(array $groupFields, array $aggregations =[], ?Criteria $filterCriteria  = null) : self
     {
         $this->grouping =  [
             'groupFields' => $groupFields,
-            'aggergations' => $aggergations
+            'aggregations' => $aggregations,
+            'whereExpression' => !is_null($filterCriteria)
+            ? $filterCriteria->getWhereExpression()
+            : null,
         ];
         return $this;
     }

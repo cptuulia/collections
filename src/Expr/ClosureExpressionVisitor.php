@@ -128,11 +128,15 @@ class ClosureExpressionVisitor extends ExpressionVisitor
      */
     public static function groupByField(array $grouping, array $originalRows): array
     {
-        list('groupFields' => $groupwdFields, 'aggergations' => $aggregations) = $grouping;
+        list (
+            'groupFields' => $groupedFields, 
+            'aggregations' => $aggregations,
+            'whereExpression' => $whereExpression,
+        ) = $grouping;
         $groupedRows = [];
         foreach ($originalRows as $originalRow) {
             $item = [];
-            foreach ($groupwdFields as $group) {
+            foreach ($groupedFields as $group) {
                 $item[$group] = $originalRow[$group];
             }
             $groupedRows[] = $item;
@@ -141,7 +145,14 @@ class ClosureExpressionVisitor extends ExpressionVisitor
         arsort($groupedRows);
         $groupedRows = array_reverse($groupedRows);
 
-        $groupedRows = GroupAggregation::aggregate($originalRows, $groupedRows, $groupwdFields, $aggregations);
+        $groupedRows = GroupAggregation::aggregate($originalRows, $groupedRows, $groupedFields, $aggregations);
+
+           
+        if ($whereExpression) {
+            $visitor  = new ClosureExpressionVisitor();
+            $filter   = $visitor->dispatch($whereExpression);
+            $groupedRows = array_filter($groupedRows, $filter);
+        }
 
         return $groupedRows;
     }
