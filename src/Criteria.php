@@ -30,7 +30,7 @@ class Criteria
     /** @var array<string, Order> */
     private array $orderings = [];
 
-    /** TODO@var array<string, EGroupAggregation>  */ 
+    /** TODO@var array<string, EGroupAggregate>  */ 
     private array $grouping = [];
 
     private int|null $firstResult = null;
@@ -190,7 +190,7 @@ class Criteria
         /**
      * Gets the current orderings of this Criteria.
      *
-     *  @return array<string, EGroupAggregation>   
+     *  @return array<string, EGroupAggregate>   
      */
     public function grouping(): array
     {
@@ -246,15 +246,15 @@ class Criteria
      * Keys are fields and values are the order, being a valid Gru enum case.
      *
      *
-     * TODO@param array<EGroupAggregation> $aggregations
+     * TODO@param array<EGroupAggregate> $aggregates
      *
      * @return $this
      */
-    public function groupBy(array $groupFields, array $aggregations =[], ?Criteria $filterCriteria  = null) : self
+    public function groupBy(array $groupFields, array $aggregates =[], ?Criteria $filterCriteria  = null) : self
     {
         $this->grouping =  [
             'groupFields' => $groupFields,
-            'aggregations' => $aggregations,
+            'aggregates' => $aggregates,
             'whereExpression' => !is_null($filterCriteria)
             ? $filterCriteria->getWhereExpression()
             : null,

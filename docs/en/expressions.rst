@@ -92,34 +92,46 @@ main criteria.
 
 .. code-block:: php
     
-    use Doctrine\Common\Collections\GroupAggregation; 
+    use Doctrine\Common\Collections\GroupAggregate; 
     use Doctrine\Common\Collections\Order;
     
     // Basic
  
     $criteria->groupBy(['category', 'key']);
 
-    // With aggregations COUNT and SUM for the fields  'value' and 'rate'
+    // With aggregates COUNT and SUM for the fields  'value' and 'rate'
 
     $criteria->groupBy(
          ['category', 'key'],
          [
-            GroupAggregation::$COUNT => [],
-            GroupAggregation::$SUM => ['value', 'rate']
+            GroupAggregate::$COUNT => [],
+            GroupAggregate::$SUM => ['value', 'rate']
           ]
      );
 
-     // With aggregation filter: 'sum(value) > 5'
+     // With aggregate filter: 'sum(value) > 5'
 
     $expr = new Comparison('sum(value)', Comparison::GT, 6);
     $criteria->groupBy(
          ['category', 'key'],
          [
-            GroupAggregation::$COUNT => [],
-            GroupAggregation::$SUM => ['value', 'rate'],
+            GroupAggregate::$COUNT => [],
+            GroupAggregate::$SUM => ['value', 'rate'],
             Criteria::create()->where($expr)
           ]
      );
+
+   // With aggregate orderBy : 'sum(value) DESC'
+
+    $expr = new Comparison('sum(value)', Comparison::GT, 6);
+    $criteria->groupBy(
+         ['category', 'key'],
+         [
+            GroupAggregate::$COUNT => [],
+            GroupAggregate::$SUM => ['value', 'rate'],
+            Criteria::create()->where($expr)
+          ]
+     )->orderBy(['sum(value)' => Order::Descending]);
 
 
 setFirstResult

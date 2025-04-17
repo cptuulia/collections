@@ -14,7 +14,7 @@ namespace Doctrine\Tests\Common\Collections;
  *  1) Base groupBy
  * 
  *     Test that the group by works
- *     without any other criteria or aggregations.
+ *     without any other criteria or aggregates.
  * 
  *  2) Test groupBy with aggregators
  * 
@@ -29,19 +29,19 @@ namespace Doctrine\Tests\Common\Collections;
  *  4) Test where
  *  
  *     First we test that we can filter by the grouped rows
- *     by the aggregation results
+ *     by the aggregate results
  * 
  *     Then we test that we can also filter by the values
  *     of the original row set.
  * 
  *  5) Test andWhere
  *  
- *     Test that we can filter multiple aggregation columns
+ *     Test that we can filter multiple aggregate columns
  *     by AND operator.
  * 
  *  6) Test orWhere
  *  
- *     Test that we can filter multiple aggregation columns
+ *     Test that we can filter multiple aggregate columns
  *     by AND operator.
  * 
  *   7) Test setFirstResult with groupBy.
@@ -56,7 +56,7 @@ namespace Doctrine\Tests\Common\Collections;
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\GroupAggregation;
+use Doctrine\Common\Collections\GroupAggregate;
 use Doctrine\Common\Collections\Order;
 use PHPUnit\Framework\TestCase;
 
@@ -84,7 +84,7 @@ class GroupByTest extends TestCase
      * Test  groupBy 
      * 
      * Test that the group by works
-     * without any other criteria or aggregations.
+     * without any other criteria or aggregates.
      *
      * Corresponding SQL:
      * 
@@ -114,7 +114,7 @@ class GroupByTest extends TestCase
     }
 
     /**
-     * Test criteria groupBy with aggregations
+     * Test criteria groupBy with aggregates
      * 
      * Test that we can use multiple aggregators by 
      * multiple fields.
@@ -133,20 +133,20 @@ class GroupByTest extends TestCase
      * GROUP BY category, 
      *          key
      */
-    public function testGroupByWithAggregations(): void
+    public function testGroupByWithAggregates(): void
     {
         $collection = $this->getCollection();
 
         $fieldsToGroup =  ['category', 'key'];
-        $aggregations = [
-            GroupAggregation::$COUNT => [],
-            GroupAggregation::$SUM => ['value', 'key'],
-            GroupAggregation::$MAX => ['value', 'id'],
-            GroupAggregation::$MIN => ['value'],
-            GroupAggregation::$AVG => ['value'],
+        $aggregates = [
+            GroupAggregate::$COUNT => [],
+            GroupAggregate::$SUM => ['value', 'key'],
+            GroupAggregate::$MAX => ['value', 'id'],
+            GroupAggregate::$MIN => ['value'],
+            GroupAggregate::$AVG => ['value'],
         ];
 
-        $criteria = Criteria::create()->groupBy($fieldsToGroup, $aggregations);
+        $criteria = Criteria::create()->groupBy($fieldsToGroup, $aggregates);
 
         $groupedRows = $collection->matching($criteria)->toArray();
 
@@ -223,12 +223,12 @@ class GroupByTest extends TestCase
         $collection = $this->getCollection();
 
         $fieldsToGroup =  ['category', 'key'];
-        $aggregations = [
-            GroupAggregation::$SUM => ['value'],
+        $aggregates = [
+            GroupAggregate::$SUM => ['value'],
         ];
 
         $criteria = Criteria::create()
-            ->groupBy($fieldsToGroup, $aggregations)
+            ->groupBy($fieldsToGroup, $aggregates)
             ->orderBy(['sum(value)' => Order::Descending]);
 
         $groupedRows = $collection->matching($criteria)->toArray();
@@ -247,7 +247,7 @@ class GroupByTest extends TestCase
      * Test where
      * 
      * First we test that we can filter by the grouped rows
-     * by the aggregation results
+     * by the aggregate results
      * 
      * Then we test that we can also filter by the values
      * of the original row set.
@@ -280,11 +280,11 @@ class GroupByTest extends TestCase
         $collection = $this->getCollection();
 
         //
-        // Test to filter by the aggregation column 'sum(value)'
+        // Test to filter by the aggregate column 'sum(value)'
         //
         $fieldsToGroup =  ['category', 'key'];
-        $aggregations = [
-            GroupAggregation::$SUM => ['value'],
+        $aggregates = [
+            GroupAggregate::$SUM => ['value'],
         ];
 
         $expr = new Comparison('sum(value)', Comparison::GT, 6);
@@ -293,7 +293,7 @@ class GroupByTest extends TestCase
         $groupCriteria = Criteria::create()->where($expr);
 
         $criteria = Criteria::create()
-            ->groupBy($fieldsToGroup, $aggregations, $groupCriteria)
+            ->groupBy($fieldsToGroup, $aggregates, $groupCriteria)
             ->orderBy(['sum(value)' => Order::Descending]);
 
         $groupedRows = $collection->matching($criteria)->toArray();
@@ -307,12 +307,12 @@ class GroupByTest extends TestCase
         self::assertSame($expected, $groupedRows);
 
         //
-        // Test to filter by the aggregation column 'sum(value)'
+        // Test to filter by the aggregate column 'sum(value)'
         // and the column 'value' of the original row set
         //
         $exprMinValue = new Comparison('value', Comparison::GT, 2);
         $criteria = Criteria::create()
-            ->groupBy($fieldsToGroup, $aggregations, $groupCriteria)
+            ->groupBy($fieldsToGroup, $aggregates, $groupCriteria)
             ->where($exprMinValue)
             ->orderBy(['sum(value)' => Order::Descending]);
 
@@ -330,7 +330,7 @@ class GroupByTest extends TestCase
     /**
      * Test andWhere
      *  
-     * Test that we can filter multiple aggregation columns
+     * Test that we can filter multiple aggregate columns
      * by AND operator.
      * 
      * Corresponding SQL:
@@ -350,8 +350,8 @@ class GroupByTest extends TestCase
         $collection = $this->getCollection();
 
         $fieldsToGroup =  ['category', 'key'];
-        $aggregations = [
-            GroupAggregation::$SUM => ['value', 'key'],
+        $aggregates = [
+            GroupAggregate::$SUM => ['value', 'key'],
         ];
 
         $exprMinSumValue = new Comparison('sum(value)', Comparison::GT, 6);
@@ -363,7 +363,7 @@ class GroupByTest extends TestCase
             ->andWhere($exprMinSumKey);
 
         $criteria = Criteria::create()
-            ->groupBy($fieldsToGroup, $aggregations, $groupCriteria)
+            ->groupBy($fieldsToGroup, $aggregates, $groupCriteria)
             ->orderBy(['sum(value)' => Order::Descending]);
 
         $groupedRows = $collection->matching($criteria)->toArray();
@@ -379,7 +379,7 @@ class GroupByTest extends TestCase
     /**
      * Test orWhere
      *  
-     * Test that we can filter multiple aggregation columns
+     * Test that we can filter multiple aggregate columns
      * by OR operator.
      * 
      * Corresponding SQL:
@@ -401,7 +401,7 @@ class GroupByTest extends TestCase
         $collection = $this->getCollection();
 
         $fieldsToGroup =  ['category', 'key'];
-        $aggregations = [GroupAggregation::$SUM => ['value', 'key']];
+        $aggregates = [GroupAggregate::$SUM => ['value', 'key']];
 
         $exprMinSumValue = new Comparison('sum(value)', Comparison::GT, 6);
         $exprMinSumKey = new Comparison('sum(key)', Comparison::GT, 5);
@@ -411,7 +411,7 @@ class GroupByTest extends TestCase
             ->orWhere($exprMinSumKey);
 
         $criteria = Criteria::create()
-            ->groupBy($fieldsToGroup, $aggregations, $groupCriteria)
+            ->groupBy($fieldsToGroup, $aggregates, $groupCriteria)
             ->orderBy(['sum(value)' => Order::Descending]);
 
         $groupedRows = $collection->matching($criteria)->toArray();
@@ -447,10 +447,10 @@ class GroupByTest extends TestCase
         $collection = $this->getCollection();
 
         $fieldsToGroup =  ['category', 'key'];
-        $aggregations = [GroupAggregation::$SUM => ['value']];
+        $aggregates = [GroupAggregate::$SUM => ['value']];
 
         $criteria = Criteria::create()
-            ->groupBy($fieldsToGroup, $aggregations)
+            ->groupBy($fieldsToGroup, $aggregates)
             ->setFirstResult(1)
             ->orderBy(['sum(value)' => Order::Descending]);
         $groupedRows = $collection->matching($criteria)->toArray();
@@ -487,10 +487,10 @@ class GroupByTest extends TestCase
         $collection = $this->getCollection();
 
         $fieldsToGroup =  ['category', 'key'];
-        $aggregations = [GroupAggregation::$SUM => ['value']];
+        $aggregates = [GroupAggregate::$SUM => ['value']];
 
         $criteria = Criteria::create()
-            ->groupBy($fieldsToGroup, $aggregations)
+            ->groupBy($fieldsToGroup, $aggregates)
             ->setMaxResults(3)
             ->orderBy(['sum(value)' => Order::Descending]);
         $groupedRows = $collection->matching($criteria)->toArray();

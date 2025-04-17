@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 namespace Doctrine\Common\Collections;
-use Doctrine\Common\Collections\EGroupAggregation;
+use Doctrine\Common\Collections\EGroupAggregate;
 
 /**
  * A class to to aggregate a grouped row set
  */
-class GroupAggregation
+class GroupAggregate
 {
     /**
-     *  Aggregations
+     *  Aggregates
      */
     public static string $COUNT = 'count';
     public static string $SUM = 'sum';
@@ -25,13 +25,13 @@ class GroupAggregation
      * @param array $originalRows   original row set before grouping
      * @param array $groupedRows    grouped rows
      * @param array $groupedFields  fields used for the grouping
-     * @param array $aggregations   aggregations
+     * @param array $aggregates   aggregates
      */
     public static function aggregate(
         array $originalRows,
         array $groupedRows,
         array $groupedFields,
-        array $aggregations
+        array $aggregates
     ): array {
 
         // Find matching rows in the grouped rows an aggregate
@@ -40,7 +40,7 @@ class GroupAggregation
         foreach ($originalRows as  $originalRow) {
             foreach ($groupedRows as &$groupedRow) {
                 if (self::isInGroup($originalRow, $groupedRow, $groupedFields)) {
-                        $groupedRow = self::aggregateRow($originalRow, $groupedRow, $aggregations);
+                        $groupedRow = self::aggregateRow($originalRow, $groupedRow, $aggregates);
                 }
             }
         }
@@ -81,15 +81,15 @@ class GroupAggregation
     /**
      * Aggreate the original to the grouped row
      */
-    private static function aggregateRow(array $originalRow,  array $groupedRow, array $aggregations): array 
+    private static function aggregateRow(array $originalRow,  array $groupedRow, array $aggregates): array 
     {
-        foreach ($aggregations as $aggregation => $aggregationFields) {
-            $groupedRow = match ($aggregation) {
+        foreach ($aggregates as $aggregate => $aggregateFields) {
+            $groupedRow = match ($aggregate) {
                 self::$COUNT => self::count($groupedRow),
-                self::$SUM => self::sum($groupedRow, $originalRow, $aggregationFields),
-                self::$MAX => self::minMax('max', $groupedRow, $originalRow, $aggregationFields),
-                self::$MIN => self::minMax('min', $groupedRow, $originalRow, $aggregationFields),
-                self::$AVG => self::avg($groupedRow, $originalRow, $aggregationFields),
+                self::$SUM => self::sum($groupedRow, $originalRow, $aggregateFields),
+                self::$MAX => self::minMax('max', $groupedRow, $originalRow, $aggregateFields),
+                self::$MIN => self::minMax('min', $groupedRow, $originalRow, $aggregateFields),
+                self::$AVG => self::avg($groupedRow, $originalRow, $aggregateFields),
                 default => $groupedRow,
             };
         }
@@ -115,11 +115,11 @@ class GroupAggregation
     private static function sum(
         array $groupedRow,
         array $originalRow,
-        array $aggregationFields
+        array $aggregateFields
     ): array {
-        foreach ($aggregationFields as $aggregationField) {
-            $key = self::getKey('sum', $aggregationField);
-            $value = $originalRow[$aggregationField];
+        foreach ($aggregateFields as $aggregateField) {
+            $key = self::getKey('sum', $aggregateField);
+            $value = $originalRow[$aggregateField];
             if (!isset($groupedRow[$key])) {
                 $groupedRow[$key] = $value;
             } else {
@@ -138,12 +138,12 @@ class GroupAggregation
         string $minMax,
         array $groupedRow,
         array $originalRow,
-        array $aggregationFields
+        array $aggregateFields
     ): array {
 
-        foreach ($aggregationFields as $aggregationField) {
-            $key = self::getKey($minMax, $aggregationField);
-            $value = $originalRow[$aggregationField];
+        foreach ($aggregateFields as $aggregateField) {
+            $key = self::getKey($minMax, $aggregateField);
+            $value = $originalRow[$aggregateField];
 
             if (!isset($groupedRow[$key])) {
                 $groupedRow[$key] = $value;
@@ -166,11 +166,11 @@ class GroupAggregation
     private static function avg(
         array $groupedRow,
         array $originalRow,
-        array $aggregationFields
+        array $aggregateFields
     ): array {
-        foreach ($aggregationFields as $aggregationField) {
-            $key = self::getKey('avg', $aggregationField);
-            $value = $originalRow[$aggregationField];
+        foreach ($aggregateFields as $aggregateField) {
+            $key = self::getKey('avg', $aggregateField);
+            $value = $originalRow[$aggregateField];
             if (!isset($groupedRow[$key])) {
                 $groupedRow[$key] =  [
                     'sum' =>  $value,
@@ -203,10 +203,10 @@ class GroupAggregation
     }
 
     /**
-     * get aggregation key
+     * get aggregate key
      */
-    private static function getKey(string $prefix, string $aggregationField): string
+    private static function getKey(string $prefix, string $aggregateField): string
     {
-        return $prefix . '(' . $aggregationField . ')';
+        return $prefix . '(' . $aggregateField . ')';
     }
 }

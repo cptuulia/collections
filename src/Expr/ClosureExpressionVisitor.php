@@ -23,7 +23,7 @@ use function str_ends_with;
 use function str_starts_with;
 use function strtoupper;
 
-use Doctrine\Common\Collections\GroupAggregation;
+use Doctrine\Common\Collections\GroupAggregate;
 
 /**
  * Walks an expression graph and turns it into a PHP closure.
@@ -130,7 +130,7 @@ class ClosureExpressionVisitor extends ExpressionVisitor
     {
         list (
             'groupFields' => $groupedFields, 
-            'aggregations' => $aggregations,
+            'aggregates' => $aggregates,
             'whereExpression' => $whereExpression,
         ) = $grouping;
         $groupedRows = [];
@@ -145,7 +145,7 @@ class ClosureExpressionVisitor extends ExpressionVisitor
         arsort($groupedRows);
         $groupedRows = array_reverse($groupedRows);
 
-        $groupedRows = GroupAggregation::aggregate($originalRows, $groupedRows, $groupedFields, $aggregations);
+        $groupedRows = GroupAggregate::aggregate($originalRows, $groupedRows, $groupedFields, $aggregates);
 
            
         if ($whereExpression) {
